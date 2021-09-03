@@ -5,7 +5,7 @@ xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
 
 xhost +local:docker
 
-nvidia-docker run -it --privileged --net=host --ipc=host\
+docker run -it --privileged --net=host --ipc=host\
     --name="orbslam3" \
     --gpus=all \
     -e "DISPLAY=$DISPLAY" \
