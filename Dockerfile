@@ -1,40 +1,32 @@
-FROM osrf/ros:melodic-desktop-full
+FROM nvidia/opengl:1.2-glvnd-runtime-ubuntu18.04
 
-RUN sudo apt update
+RUN apt-get update
 
-# nvidia-container-runtime
-ENV NVIDIA_VISIBLE_DEVICES \
-    ${NVIDIA_VISIBLE_DEVICES:-all}
-ENV NVIDIA_DRIVER_CAPABILITIES \
-    ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get install -y gnupg2 curl lsb-core vim wget python-pip libpng16-16 libjpeg-turbo8 libtiff5
 
-# avoid user interaction requests during installation
-RUN DEBIAN_FRONTEND=noninteractive
-RUN sudo apt update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install keyboard-configuration -y
 
-# install nvidia drivers
-RUN sudo apt update
-RUN sudo apt install software-properties-common -y
-RUN sudo add-apt-repository ppa:graphics-drivers 
-RUN sudo apt install nvidia-driver-450 -y
+# Installing ROS-melodic
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+RUN curl -sSL 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xC1CF6E31E6BADE8868B172B4F42ED6FBAB17C654' | apt-key add -
+RUN apt update
+RUN apt install -y ros-melodic-desktop
+RUN apt-get install -y python-rosdep
+RUN rosdep init
+RUN rosdep update
+RUN echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+RUN apt install -y python-rosinstall python-rosinstall-generator python-wstool build-essential
 
-# ======== Installing productivity tools ========
-RUN apt-get install -y \
-    sudo \
-    vim \
-    terminator \
-    dbus \
-    dbus-x11 \
-    pcmanfm
+# Intalling python-catkin
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list'
+RUN wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+RUN apt-get update
+RUN apt-get install -y python-catkin-tools
+RUN apt-get install -y software-properties-common
 
-# ======== Install extra stuff for IDE compatibility ========
-RUN apt-get install -y \
-    gdb \
-    curl \
-    rsync \
-    zsh \
-    unzip
+RUN echo "source /opt/ros/melodic/setup.bash" >> ~/.bash_profile
+
 
 RUN apt-get install -y \
         # Base tools
@@ -50,34 +42,47 @@ RUN apt-get install -y \
         libgl1-mesa-dev \
         libglew-dev \
         libpython2.7-dev \
-        libeigen3-dev
+        libeigen3-dev \
+        apt-transport-https \
+        ca-certificates\
+        software-properties-common
+
+RUN curl -fsSL https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+RUN add-apt-repository "deb https://download.sublimetext.com/ apt/stable/"
+RUN apt update
+RUN apt install -y sublime-text
 
 # Build OpenCV (3.0 or higher should be fine)
+RUN apt-get install -y python3-dev python3-numpy 
+RUN apt-get install -y python-dev python-numpy
+RUN apt-get install -y libavcodec-dev libavformat-dev libswscale-dev
+RUN apt-get install -y libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev
+RUN apt-get install -y libgtk-3-dev
+
 RUN cd /tmp && git clone https://github.com/opencv/opencv.git && \
     cd opencv && \
-    git checkout 4.4.0 && \
+    git checkout 3.2.0 && \
     mkdir build && cd build && \
     cmake -D CMAKE_BUILD_TYPE=Release -D BUILD_EXAMPLES=OFF  -D BUILD_DOCS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_TESTS=OFF -D CMAKE_INSTALL_PREFIX=/usr/local .. && \
     make -j$nproc && make install && \
     cd / && rm -rf /tmp/opencv
 
-# Build Pangolin
+# # Build Pangolin
 RUN cd /tmp && git clone https://github.com/stevenlovegrove/Pangolin && \
     cd Pangolin && git checkout v0.6 && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11 .. && \
     make -j$nproc && make install && \
     cd / && rm -rf /tmp/Pangolin
 
-# Build ORB-SLAM3 for ROS
-RUN git clone https://github.com/UZ-SLAMLab/ORB_SLAM3 /ORB_SLAM3
-RUN . /opt/ros/melodic/setup.sh && \
-    export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:/ORB_SLAM3/Examples/ROS && \
-    cd /ORB_SLAM3/ && \
-    chmod +x build.sh && ./build.sh \
-    chmod +x build_ros.sh && ./build_ros.sh
+COPY ros_entrypoint.sh /ros_entrypoint.sh
+RUN chmod +x  /ros_entrypoint.sh
+ENV ROS_DISTRO melodic
+ENV LANG en_US.UTF-8
 
-# the user we're applying this too (otherwise it most likely install for root)
+ENTRYPOINT ["/ros_entrypoint.sh"]
+
 USER $USERNAME
 # terminal colors with xterm
 ENV TERM xterm
-WORKDIR /ORB_SLAM3
+
+CMD ["bash"]
