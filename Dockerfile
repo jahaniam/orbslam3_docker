@@ -84,5 +84,6 @@ ENTRYPOINT ["/ros_entrypoint.sh"]
 USER $USERNAME
 # terminal colors with xterm
 ENV TERM xterm
-
+RUN mkdir /ORB_SLAM3
+WORKDIR /ORB_SLAM3
 CMD ["bash"]
