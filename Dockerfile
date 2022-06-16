@@ -53,7 +53,7 @@ RUN apt update
 RUN apt install -y sublime-text
 
 # Build OpenCV (3.0 or higher should be fine)
-RUN apt-get install -y python3-dev python3-numpy 
+RUN apt-get install -y python3-dev python3-numpy
 RUN apt-get install -y python-dev python-numpy
 RUN apt-get install -y libavcodec-dev libavformat-dev libswscale-dev
 RUN apt-get install -y libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev

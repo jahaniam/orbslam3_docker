@@ -1,5 +1,5 @@
 # Image taken from https://github.com/turlucode/ros-docker-gui
-FROM turlucode/ros-melodic:cpu  
+FROM turlucode/ros-melodic:cpu
 
 RUN apt-get update
 

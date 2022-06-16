@@ -26,14 +26,19 @@ actual ORB_SLAM3 software (about 1.5GB) lives outside the build image:
 ```sh
 # download and unzip the test dataset
 ./download_dataset_sample.sh
-# if you have just a cpu this will download an image and 
+# if you have just a cpu this will download an image and
 build_container_cpu.sh
 # if you have nvidia gpu
 build_container_cuda.sh
 ```
 
 Now you should see ORB_SLAM3 is compiling and it will eventually leave a
-detached running container connects to ./ORB_SLAM3 directory in this drive.
+detached running container
+
+The container connects to ./ORB_SLAM3 directory in this directory and to
+./Datasets directory for the datasets you load. These are kept external to the
+container.
+
 This container must be connected via X11 to your host machine, so if you have
 issues look at the ./build_container scripts and make sure that X11 works by
 ensuring that it works by testing with xeyes:
@@ -79,9 +84,14 @@ cd Examples
 
 ```
 
-## Using VSCode or Sublime
+## Using VSCode or Sublime within the container
 
-You can use vscode remote development (recommended) or sublime to change codes.
+You can use vscode remote development (recommended) or sublime to change code
+from within the docker container since subl is loaded in the container.
 
 - `docker exec -it orbslam3 bash`
 - `subl /ORB_SLAM3`
+
+Alternatively, you can leave the container running in a separate terminal
+windows and just edit [./ORB_SLAM3](./ORG_SLAM3) and this will be reflected in
+the container
