@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 # checking if you have nvidia gpu
 #
 # Catch more errors like pipefail
@@ -10,6 +11,9 @@ BUILD="${BUILD:-false}"
 REMOVE="${REMOVE:-false}"
 # set restart if you want to restart the container
 RESTART="${RESTART:-true}"
+
+ORG="${ORG:-jahaniam}"
+echo "$SCRIPTNAME: Using docker org $ORG"
 
 if command -v nvidia-smi && nvidia-smi | grep -q Driver; then
 	echo "******************************"
@@ -62,7 +66,7 @@ fi
 echo "$SCRIPTNAME: set environment variable BUILD=true if you want to remove the container"
 if $BUILD; then
 	echo "Building container"
-	docker pull jahaniam/orbslam3:ubuntu18_melodic_cpu
+	docker pull "$ORG/orbslam3:ubuntu18_melodic_cpu"
 
 fi
 
@@ -95,7 +99,7 @@ echo $SCRIPTNAME: docker run -td --privileged --net=host --ipc=host \
 	-v /etc/group:/etc/group:ro \
 	-v "$(pwd)/Datasets:/Datasets" \
 	-v "$(pwd)/ORB_SLAM3:/ORB_SLAM3" \
-	jahaniam/orbslam3:ubuntu18_melodic_cpu bash
+	"$ORG/orbslam3:ubuntu18_melodic_cpu" bash
 
 # note we need --platform so this will run on M1 Macs
 docker run -td --privileged --net=host --ipc=host \
@@ -108,7 +112,7 @@ docker run -td --privileged --net=host --ipc=host \
 	-v /etc/group:/etc/group:ro \
 	-v "$(pwd)/Datasets:/Datasets" \
 	-v "$(pwd)/ORB_SLAM3:/ORB_SLAM3" \
-	jahaniam/orbslam3:ubuntu18_melodic_cpu bash
+	"$ORG/orbslam3:ubuntu18_melodic_cpu" bash
 
 if $BUILD; then
 	# Git pull orbslam and compile
