@@ -26,10 +26,15 @@ actual ORB_SLAM3 software (about 1.5GB) lives outside the build image:
 ```sh
 # download and unzip the test dataset
 ./download_dataset_sample.sh
+# build the image once for the nVidia gpu
+./build_image.sh
+# build the image once for cpu only
+
+# then everytime you run
 # if you have just a cpu this will download an image and
-build_container_cpu.sh
+./build_container_cpu.sh
 # if you have nvidia gpu
-build_container_cuda.sh
+./build_container_cuda.sh
 ```
 
 Now you should see ORB_SLAM3 is compiling and it will eventually leave a

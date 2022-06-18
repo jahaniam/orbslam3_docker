@@ -3,7 +3,8 @@ FROM nvidia/opengl:1.2-glvnd-runtime-ubuntu18.04
 RUN apt-get update
 
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get install -y gnupg2 curl lsb-core vim wget python-pip libpng16-16 libjpeg-turbo8 libtiff5
+RUN apt-get install -y gnupg2 curl lsb-core vim wget python-pip libpng16-16 \
+    libjpeg-turbo8 libtiff5 x11-apps
 
 
 # Installing ROS-melodic
