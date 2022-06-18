@@ -1,6 +1,6 @@
 # ./lib/pre-commit-config.full.yaml
 # now includes all the jupyter and python checks
-# if you want to exclude then use the exclude and put the directories in
+# if you want to exclude then use the exclude and put the directories inLE
 #
 # For the main source repo with random stuff in it
 # tried dockerfilelint but too strict and disabling does not work
@@ -198,3 +198,14 @@ repos:
       - id: hadolint
       # use if you have docker and you do not need hadolint installed
       # - id: hadolint-docker
+
+  # lint Makefile with checkmake does not work go failure
+  #- repo: https://github.com/lucas-c/pre-commit-hooks-go
+  #  rev: v1.0.1
+  #  hooks:
+  #    - id: checkmake
+  # also does not work needs to bo to upstream
+  #- repo: https://github.com/trinitronx/checkmake
+  #  rev: 0.2.2
+  #  hooks:
+  #    - id: checkmake
