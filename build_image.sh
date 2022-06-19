@@ -8,7 +8,7 @@ ORG="${ORG:-jahaniam}"
 IMAGE="${IMAGE:-orbslam3}"
 DOCKERFILE="${DOCKERFILE:-Dockerfile}"
 TYPE="${TYPE:-cuda}"
-TAG="${TAG:-ubuntu_18_melodic}"
+TAG="${TAG:-ubuntu18_melodic}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 # if you want multiplate dockerhub orgs add the following
 #PLATFORM="${PLATFORM:-linux/amd64,linux/arm64}"

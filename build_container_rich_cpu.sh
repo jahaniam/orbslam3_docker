@@ -6,13 +6,14 @@
 set -ueo pipefail && SCRIPTNAME="$(basename "${BASH_SOURCE[0]}")"
 SCRIPT_DIR="${SCRIPT_DIR:-"$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"}"
 # do not build the container just exec it by default
-BUILD="${BUILD:-false}"
+BUILD="${BUILD:-true}"
 # set remove the build artifacts
-REMOVE="${REMOVE:-false}"
+REMOVE="${REMOVE:-true}"
 # set restart if you want to restart the container
 RESTART="${RESTART:-true}"
 
 ORG="${ORG:-jahaniam}"
+IMAGE="${IMAGE:-orbslam3}"
 echo "$SCRIPTNAME: Using docker org $ORG"
 
 if command -v nvidia-smi && nvidia-smi | grep -q Driver; then
@@ -66,31 +67,30 @@ fi
 echo "$SCRIPTNAME: set environment variable BUILD=true if you want to remove the container"
 if $BUILD; then
 	echo "Building container"
-	docker pull "$ORG/orbslam3:ubuntu18_melodic_cpu"
+	docker pull "$ORG/$IMAGE:ubuntu18_melodic_cpu"
 
 fi
 
 echo "$SCRIPTNAME: export REMOVE=true to remove build artifacts"
 if $REMOVE; then
-	R
 	echo "$SCRIPTNAME: Removing build artifacts"
-	if [[ -d "ORB_SLAM3" ]]; then
-		sudo rm -rf ORB_SLAM3
-		mkdir ORB_SLAM3
+	if [[ -d ORB_SLAM3 ]]; then
+		rm -rf ORB_SLAM3
+		mkdir -p ORB_SLAM3
 	fi
 fi
 
 echo "$SCRIPTNAME: export RESTART=true if you want to restart the container"
 if $RESTART; then
 	echo "Restarting container"
-	docker rm -f orbslam3 &>/dev/null
+	docker rm -f "$IMAGE" &>/dev/null
 fi
 
 # Create a new container
 echo "$SCRIPTNAME: start ORB_SLAM3 container"
 # shellcheck disable=SC2086
 echo $SCRIPTNAME: docker run -td --privileged --net=host --ipc=host \
-	--name="orbslam3" \
+	--name="$IMAGE" \
 	--platform linux/amd64 \
 	"${X11_PARMS[@]}" \
 	-e "QT_X11_NO_MITSHM=1" \
@@ -99,12 +99,12 @@ echo $SCRIPTNAME: docker run -td --privileged --net=host --ipc=host \
 	-v /etc/group:/etc/group:ro \
 	-v "$(pwd)/Datasets:/Datasets" \
 	-v "$(pwd)/ORB_SLAM3:/ORB_SLAM3" \
-	"$ORG/orbslam3:ubuntu18_melodic_cpu" bash
+	"$ORG/$IMAGE:cpu" bash
 
 # note we need --platform so this will run on M1 Macs
 docker run -td --privileged --net=host --ipc=host \
 	--platform linux/amd64 \
-	--name="orbslam3" \
+	--name="$IMAGE" \
 	"${X11_PARMS[@]}" \
 	-e "QT_X11_NO_MITSHM=1" \
 	-e ROS_IP=127.0.0.1 \
@@ -112,11 +112,11 @@ docker run -td --privileged --net=host --ipc=host \
 	-v /etc/group:/etc/group:ro \
 	-v "$(pwd)/Datasets:/Datasets" \
 	-v "$(pwd)/ORB_SLAM3:/ORB_SLAM3" \
-	"$ORG/orbslam3:ubuntu18_melodic_cpu" bash
+	"$ORG/$IMAGE:ubuntu18_melodic_cpu" bash
 
 if $BUILD; then
 	# Git pull orbslam and compile
-	docker exec -it orbslam3 bash -i -c "git clone -b docker_opencv3.2_fix https://github.com/jahaniam/ORB_SLAM3 /ORB_SLAM3 && cd /ORB_SLAM3 && chmod +x build.sh && ./build.sh "
+	docker exec -it "$IMAGE" bash -i -c "git clone -b docker_opencv3.2_fix https://github.com/jahaniam/ORB_SLAM3 /ORB_SLAM3 && cd /ORB_SLAM3 && chmod +x build.sh && ./build.sh "
 	# Compile ORBSLAM3-ROS
-	docker exec -it orbslam3 bash -i -c "echo 'ROS_PACKAGE_PATH=/opt/ros/melodic/share:/ORB_SLAM3/Examples/ROS'>>~/.bashrc && source ~/.bashrc && cd /ORB_SLAM3 && chmod +x build_ros.sh && ./build_ros.sh"
+	docker exec -it "$IMAGE" bash -i -c "echo 'ROS_PACKAGE_PATH=/opt/ros/melodic/share:/ORB_SLAM3/Examples/ROS'>>~/.bashrc && source ~/.bashrc && cd /ORB_SLAM3 && chmod +x build_ros.sh && ./build_ros.sh"
 fi
