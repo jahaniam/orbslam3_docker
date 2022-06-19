@@ -5,9 +5,16 @@ ARG DEBIAN_FRONTEND=noninteractive
 # use xeyes from x11-apps for debugging
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        gnupg2 curl lsb-core vim python-pip libpng16-16 libjpeg-turbo8 \
-        libtiff5 \
-        x11-apps && \
+        gnupg2=2.2.4-1ubuntu1.4 \
+        curl=7.58.0-2ubuntu3.16 \
+        lsb-core=9.20170808ubuntu1 \
+        vim=2:8.0.1453-1ubuntu1.4 \
+        python-pip=9.0.1-2 \
+        libpng16-16=1.6.34-1 \
+        libjpeg-turbo8=1.5.2-0ubuntu5 \
+        libtiff5=4.0.9-5 \
+        x11-apps \
+    && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

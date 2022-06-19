@@ -1,3 +1,6 @@
 [submodule "lib"]
 	path = lib
 	url = git@github.com:netdrones/lib
+[submodule "ros-docker-gui"]
+	path = ros-docker-gui
+	url = git@github.com:netdrones/ros-docker-gui
