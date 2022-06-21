@@ -1,6 +1,11 @@
-# ORB_SLAM3 docker
+# ORB_SLAM3 docker with OpenCV 3.2 fix
 
-This docker is based on ros melodic ubuntu 18.
+This docker is based on ros melodic ubuntu 18 with ORB_SLAM3 v0.4. It uses
+Python 2.17, OpenCV 3.2 and is based on a fork with an [OpenCV
+3.2](https://github.com/jahaniam/ORB_SLAM3/tree/docker_opencv3.2_fix) fixes two
+OpenCV files a [PR 382](https://github.com/UZ-SLAMLab/ORB_SLAM3/pull/382) that
+work for OpenCV 4.x that were never merged into ORB_SLAM3 (as
+they use OpenCV 4) so closed it.
 
 There are two versions available:
 
@@ -14,6 +19,14 @@ Based on which graphic driver you are running, you should choose the proper
 docker. For cuda version, you need to have [nvidia-docker
 setup](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
 on your machine.
+
+## Using Docker with ORB_SLAM3 v1.0 and OpenCV 4
+
+The current state of Dockerized ORB_SLAM3 is in the main ORB_SLAM3 repo issue
+[#339](https://github.com/UZ-SLAMLab/ORB_SLAM3/issues/339). The current best
+solutions for a OpenCV 4.x version is by
+[LMWafers](https://github.com/LMWafer/orb-slam-3-ready) which is already ready
+for a RealSense cameras
 
 ---
 
