@@ -7,8 +7,9 @@ TAG ?= 0.9
 # using github container registery
 ORG ?= ghcr.io/netdrones
 IMAGE ?= orbslam3
-DOCKERFILE ?= Dockerfile_rich
-BUILD_CONTAINER ?= build_container_rich
+DOCKERFILE ?= Dockerfile
+
+BUILD_CONTAINER ?= build_container
 
 ## all: download data, build container, run image and build artifacts
 all: download build container exec
