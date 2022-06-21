@@ -84,7 +84,11 @@ fi
 if $REMOVE; then
 	echo "$SCRIPTNAME: Removing build artifacts"
 	if [[ -d ORB_SLAM3 ]]; then
-		rm -rf ORB_SLAM3
+		# do not rm -rf ORB_SLAM3 because if docker is already running it will lose the
+		# volume mount so just delete everything inside
+		#rm -rf ORB_SLAM3/
+		# this is safer and removes all the .git stuff
+		find ORB_SLAM3 -mindepth 1 -delete
 	fi
 fi
 
@@ -112,10 +116,11 @@ if $START; then
 fi
 
 if $COMPILE; then
-	echo "$SCRIPTNAME: Building artifacts in ORB_SLAM3"
+	echo "$SCRIPTNAME: Cloning ORB_SLAM3 in $PWD"
 	# Git pull orbslam and compile
 	mkdir -p ORB_SLAM3
 	docker exec -it "$IMAGE" bash -i -c "git clone -b docker_opencv3.2_fix https://github.com/jahaniam/ORB_SLAM3 /ORB_SLAM3 && cd /ORB_SLAM3 && chmod +x build.sh && ./build.sh "
+	echo "$SCRIPTNAME: Building artifacts in ORB_SLAM3"
 	# Compile ORBSLAM3-ROS
 	docker exec -it "$IMAGE" bash -i -c "echo 'ROS_PACKAGE_PATH=/opt/ros/melodic/share:/ORB_SLAM3/Examples/ROS'>>~/.bashrc && source ~/.bashrc && cd /ORB_SLAM3 && chmod +x build_ros.sh && ./build_ros.sh"
 fi

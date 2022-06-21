@@ -2,43 +2,65 @@
 # but these are not pused
 FROM ghcr.io/netdrones/ros-melodic:cpu
 
-RUN apt-get update
+SHELL ["/bin/bash" , "-ueo", "pipefail", "-c"]
 
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get install -y gnupg2 curl lsb-core vim wget python-pip libpng16-16 libjpeg-turbo8 libtiff5
 
-RUN apt-get install -y \
-        x11-apps \
+# to allow small update pin only to major.minor.sub version
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        gnupg2="2.2.*" \
+        curl="7.58.*" \
+        lsb-core="9.2017*" \
+        vim="2:8.0*" \
+        wget="1.19.*" \
+        python-pip="9.0.1*" \
+        libpng16-16=1.6.* \
+        libjpeg-turbo8=1.5.* \
+        libtiff5="4.0.*" && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        x11-apps="7.7*" \
         # Base tools
-        cmake \
-        build-essential \
-        git \
-        unzip \
-        pkg-config \
-        python-dev \
+        cmake="3.10.2-*" \
+        build-essential="12.4*" \
+        git="1:2.17.*" \
+        unzip="6.0-*" \
+        pkg-config="0.29.1-*" \
+        python-dev="2.7.15*" \
         # OpenCV dependencies
-        python-numpy \
+        python-numpy="1:1.13.3-*" \
         # Pangolin dependencies
-        libgl1-mesa-dev \
-        libglew-dev \
-        libpython2.7-dev \
-        libeigen3-dev \
-        apt-transport-https \
-        ca-certificates\
-        software-properties-common
+        libgl1-mesa-dev="20.0.8-*" \
+        libglew-dev="2.0.0-*" \
+        libpython2.7="2.7.17-*" \
+        libeigen3-dev="3.3.4-*" \
+        apt-transport-https="1.6.14*" \
+        ca-certificates="20211016*" \
+        software-properties-common="0.96.24.*" && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN curl -fsSL https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+RUN curl -fsSL https://download.sublimetext.com/sublimehq-pub.gpg | apt-key add -
 RUN add-apt-repository "deb https://download.sublimetext.com/ apt/stable/"
-RUN apt update
-RUN apt install -y sublime-text
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        sublime-text="41*" && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
 # # Build Pangolin
-RUN cd /tmp && git clone https://github.com/stevenlovegrove/Pangolin && \
-    cd Pangolin && git checkout v0.6 && mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11 .. && \
-    make -j$nproc && make install && \
-    cd / && rm -rf /tmp/Pangolin
+WORKDIR /tmp
+RUN git clone -b v0.6 https://github.com/stevenlovegrove/Pangolin
+WORKDIR /tmp/Pangolin/build
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11 .. && \
+    make -j"$(nproc)" && make install
+WORKDIR /
+RUN    rm -rf /tmp/Pangolin
 
 COPY ros_entrypoint.sh /ros_entrypoint.sh
 RUN chmod +x  /ros_entrypoint.sh
@@ -50,6 +72,5 @@ ENTRYPOINT ["/ros_entrypoint.sh"]
 USER $USERNAME
 # terminal colors with xterm
 ENV TERM xterm
-RUN mkdir /ORB_SLAM3
 WORKDIR /ORB_SLAM3
 CMD ["bash"]
