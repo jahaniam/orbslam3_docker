@@ -20,7 +20,7 @@ touch $XAUTH
 xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
 
 xhost +local:docker
-docker build . -f Dockerfile.cuda -t jahaniam/orbslam3:ubuntu20_noetic_cuda
+docker pull jahaniam/orbslam3:ubuntu20_noetic_cuda
 
 # docker pull jahaniam/orbslam3:ubuntu20_noetic_cuda
 
