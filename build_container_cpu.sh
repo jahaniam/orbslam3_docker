@@ -1,5 +1,5 @@
 # checking if you have nvidia
-if [[ $(nvidia-smi | grep Driver) ]] 2>/dev/null; then
+if nvidia-smi | grep -q "Driver" 2>/dev/null; then
   echo "******************************"
   echo """It looks like you have nvidia drivers running. Please make sure your nvidia-docker is setup by following the instructions linked in the README and then run build_container_cuda.sh instead."""
   echo "******************************"
@@ -21,7 +21,7 @@ xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
 
 xhost +local:docker
 
-docker pull jahaniam/orbslam3:ubuntu18_melodic_cpu
+docker build . -f Dockerfile.cpu -t jahaniam/orbslam3:ubuntu20_noetic_cpu
 
 # Remove existing container
 docker rm -f orbslam3 &>/dev/null
@@ -39,10 +39,10 @@ docker run -td --privileged --net=host --ipc=host \
     -v `pwd`/Datasets:/Datasets \
     -v /etc/group:/etc/group:ro \
     -v `pwd`/ORB_SLAM3:/ORB_SLAM3 \
-    jahaniam/orbslam3:ubuntu18_melodic_cpu bash
+    jahaniam/orbslam3:ubuntu20_noetic_cpu bash
     
 # Git pull orbslam and compile
-docker exec -it orbslam3 bash -i -c "git clone -b docker_opencv3.2_fix https://github.com/jahaniam/ORB_SLAM3 /ORB_SLAM3 && cd /ORB_SLAM3 && chmod +x build.sh && ./build.sh "
+docker exec -it orbslam3 bash -i -c "git clone -b add_euroc_example.sh git@github.com:jahaniam/ORB_SLAM3.git /ORB_SLAM3 && cd /ORB_SLAM3 && chmod +x build.sh && ./build.sh "
 # Compile ORBSLAM3-ROS
 docker exec -it orbslam3 bash -i -c "echo 'ROS_PACKAGE_PATH=/opt/ros/melodic/share:/ORB_SLAM3/Examples/ROS'>>~/.bashrc && source ~/.bashrc && cd /ORB_SLAM3 && chmod +x build_ros.sh && ./build_ros.sh"
 
