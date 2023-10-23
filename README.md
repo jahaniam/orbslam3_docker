@@ -1,6 +1,6 @@
 # ORB_SLAM3 docker
 
-This docker is based on ros melodic ubuntu 18.
+This docker is based on ros noetic ubuntu 20. If you need melodic with ubuntu 18 checkout #8fde91d
 
 There are two versions available:
 - CPU based (Xorg Nouveau display)
