@@ -1,31 +1,31 @@
-FROM nvidia/opengl:1.2-glvnd-runtime-ubuntu18.04
+FROM nvidia/opengl:1.2-glvnd-runtime-ubuntu20.04
 
 RUN apt-get update
 
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get install -y gnupg2 curl lsb-core vim wget python-pip libpng16-16 libjpeg-turbo8 libtiff5
+RUN apt-get install -y gnupg2 curl lsb-core vim wget python3-pip libpng16-16 libjpeg-turbo8 libtiff5
 
 
-# Installing ROS-melodic
+# Installing ROS-noetic
 RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
-RUN curl -sSL 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xC1CF6E31E6BADE8868B172B4F42ED6FBAB17C654' | apt-key add -
+
 RUN apt update
-RUN apt install -y ros-melodic-desktop
-RUN apt-get install -y python-rosdep
+RUN apt install -y ros-noetic-desktop
+RUN apt-get install -y python3-rosdep
 RUN rosdep init
 RUN rosdep update
 RUN echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
-RUN apt install -y python-rosinstall python-rosinstall-generator python-wstool build-essential
+RUN apt install -y python3-rosinstall python3-rosinstall-generator python3-wstool build-essential
 
 # Intalling python-catkin
 RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list'
 RUN wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 RUN apt-get update
-RUN apt-get install -y python-catkin-tools
+RUN apt-get install -y python3-catkin-tools
 RUN apt-get install -y software-properties-common
 
-RUN echo "source /opt/ros/melodic/setup.bash" >> ~/.bash_profile
+RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bash_profile
 
 
 RUN apt-get install -y \
@@ -35,13 +35,13 @@ RUN apt-get install -y \
         git \
         unzip \
         pkg-config \
-        python-dev \
+        python3-dev \
         # OpenCV dependencies
-        python-numpy \
+        python3-numpy \
         # Pangolin dependencies
         libgl1-mesa-dev \
         libglew-dev \
-        libpython2.7-dev \
+        libpython3-dev \
         libeigen3-dev \
         apt-transport-https \
         ca-certificates\
@@ -61,7 +61,7 @@ RUN apt-get install -y libgtk-3-dev
 
 RUN cd /tmp && git clone https://github.com/opencv/opencv.git && \
     cd opencv && \
-    git checkout 3.2.0 && \
+    git checkout 4.4.0 && \
     mkdir build && cd build && \
     cmake -D CMAKE_BUILD_TYPE=Release -D BUILD_EXAMPLES=OFF  -D BUILD_DOCS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_TESTS=OFF -D CMAKE_INSTALL_PREFIX=/usr/local .. && \
     make -j$nproc && make install && \
@@ -76,7 +76,7 @@ RUN cd /tmp && git clone https://github.com/stevenlovegrove/Pangolin && \
 
 COPY ros_entrypoint.sh /ros_entrypoint.sh
 RUN chmod +x  /ros_entrypoint.sh
-ENV ROS_DISTRO melodic
+ENV ROS_DISTRO noetic
 ENV LANG en_US.UTF-8
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
