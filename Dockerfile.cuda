@@ -15,7 +15,7 @@ RUN apt install -y ros-noetic-desktop
 RUN apt-get install -y python3-rosdep
 RUN rosdep init
 RUN rosdep update
-RUN echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 RUN apt install -y python3-rosinstall python3-rosinstall-generator python3-wstool build-essential
 
 # Intalling python-catkin
